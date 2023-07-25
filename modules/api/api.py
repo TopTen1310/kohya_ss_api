@@ -236,7 +236,7 @@ class Api:
 
         # Destination path in "stable-diffusion-webui/models/lora/{train_id}/"
         dest_dir = os.path.join(
-            base_dir, "..", "stable-diffusion-webui", "models", "lora", train_id)
+            base_dir, "stable-diffusion-webui", "models", "lora", train_id)
         os.makedirs(dest_dir, exist_ok=True)
         dest_file_path = os.path.join(dest_dir, "test1.safetensors")
 
@@ -272,9 +272,9 @@ class Api:
                 img_file.write(img_data)
 
         train_data_dir = os.path.join(base_dir, "train_data", train_id)
-        reg_data_dir = os.path.join(base_dir, "..", "reg_data")
+        reg_data_dir = os.path.join(base_dir, "reg_data")
         max_resolution = "512,512"
-        model_path = os.path.join(base_dir, "..", "stable-diffusion-webui",
+        model_path = os.path.join(base_dir, "stable-diffusion-webui",
                                   "models", "Stable-diffusion", "model.safetensors")
         instance_prompt = "ohwx"
         class_prompt = "man"
@@ -290,7 +290,7 @@ class Api:
         # Remove training data directory
         train_data_dir = os.path.join(base_dir, "train_data", id)
         model_data_dir = os.path.join(
-            base_dir, "..", "stable-diffusion-webui", "models", "lora", id)
+            base_dir, "stable-diffusion-webui", "models", "lora", id)
         if os.path.exists(train_data_dir):
             shutil.rmtree(train_data_dir)
 
