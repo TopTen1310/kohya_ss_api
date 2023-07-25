@@ -254,7 +254,7 @@ class Api:
         data = await request.json()
 
         # Extract the train_images
-        train_images = data.get('input', {}).get('train_images', [])
+        train_images = data.get('train_images', [])
 
         # Specify the directory where you want to save the images
 
