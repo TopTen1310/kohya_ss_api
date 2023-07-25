@@ -138,11 +138,11 @@ class Api:
             save_every_n_epochs=3,
             mixed_precision="fp16",
             save_precision="fp16",
-            seed=None,
+            seed="",
             num_cpu_threads_per_process=2,
             cache_latents=True,
             cache_latents_to_disk=False,
-            caption_extension=None,
+            caption_extension="",
             enable_bucket=True,
             gradient_checkpointing=False,
             full_fp16=False,
@@ -152,12 +152,12 @@ class Api:
             save_model_as="safetensors",
             shuffle_caption=False,
             save_state=False,
-            resume=None,
+            resume="",
             prior_loss_weight=1.0,
             text_encoder_lr=5e-05,
             unet_lr=0.0001,
             network_dim=128,
-            lora_network_weights=None,
+            lora_network_weights="",
             dim_from_weights=False,
             color_aug=False,
             flip_aug=False,
@@ -167,13 +167,13 @@ class Api:
             output_name='test',
             model_list="custom",
             max_token_length=75,
-            max_train_epochs=None,
+            max_train_epochs="",
             max_data_loader_n_workers=0,
             network_alpha=1,
-            training_comment=None,
+            training_comment="",
             keep_tokens=0,
-            lr_scheduler_num_cycles=None,
-            lr_scheduler_power=None,
+            lr_scheduler_num_cycles="",
+            lr_scheduler_power="",
             persistent_data_loader_workers=False,
             bucket_no_upscale=True,
             random_crop=False,
@@ -181,7 +181,7 @@ class Api:
             caption_dropout_every_n_epochs=0.0,
             caption_dropout_rate=0,
             optimizer="AdamW8bit",
-            optimizer_args=None,
+            optimizer_args="",
             noise_offset_type="Original",
             noise_offset=0,
             adaptive_noise_scale=0,
@@ -197,25 +197,25 @@ class Api:
             sample_every_n_steps=0,
             sample_every_n_epochs=0,
             sample_sampler="euler_a",
-            sample_prompts=None,
-            additional_parameters=None,
+            sample_prompts="",
+            additional_parameters="",
             vae_batch_size=0,
             min_snr_gamma=0,
-            down_lr_weight=None,
-            mid_lr_weight=None,
-            up_lr_weight=None,
-            block_lr_zero_threshold=None,
-            block_dims=None,
-            block_alphas=None,
-            conv_dims=None,
-            conv_alphas=None,
+            down_lr_weight="",
+            mid_lr_weight="",
+            up_lr_weight="",
+            block_lr_zero_threshold="",
+            block_dims="",
+            block_alphas="",
+            conv_dims="",
+            conv_alphas="",
             weighted_captions=False,
             unit=1,
             save_every_n_steps=0,
             save_last_n_steps=0,
             save_last_n_steps_state=0,
             use_wandb=False,
-            wandb_api_key=None,
+            wandb_api_key="",
             scale_v_pred_loss_like_noise_pred=False,
             scale_weight_norms=0,
             network_dropout=0,
@@ -236,7 +236,7 @@ class Api:
 
         # Destination path in "stable-diffusion-webui/models/lora/{train_id}/"
         dest_dir = os.path.join(
-            base_dir, "stable-diffusion-webui", "models", "lora", train_id)
+            base_dir, "..", "stable-diffusion-webui", "models", "lora", train_id)
         os.makedirs(dest_dir, exist_ok=True)
         dest_file_path = os.path.join(dest_dir, "test1.safetensors")
 
@@ -272,10 +272,9 @@ class Api:
                 img_file.write(img_data)
 
         train_data_dir = os.path.join(base_dir, "train_data", train_id)
-        reg_data_dir = os.path.join(base_dir, "reg_data")
+        reg_data_dir = os.path.join(base_dir, "..", "reg_data")
         max_resolution = "512,512"
-        model_path = os.path.join(base_dir, "stable-diffusion-webui",
-                                  "models", "Stable-diffusion", "model.safetensors")
+        model_path = os.path.join(base_dir, "model.safetensors")
         instance_prompt = "ohwx"
         class_prompt = "man"
 
@@ -290,7 +289,7 @@ class Api:
         # Remove training data directory
         train_data_dir = os.path.join(base_dir, "train_data", id)
         model_data_dir = os.path.join(
-            base_dir, "stable-diffusion-webui", "models", "lora", id)
+            base_dir, "..", "stable-diffusion-webui", "models", "lora", id)
         if os.path.exists(train_data_dir):
             shutil.rmtree(train_data_dir)
 
