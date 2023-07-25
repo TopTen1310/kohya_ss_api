@@ -68,8 +68,6 @@ class Api:
         self.router = APIRouter()
         self.app = app
         api_middleware(self.app)
-        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
-        self.futures = {}
 
         self.add_api_route("/loraapi/v1/training", self.create_train,
                            methods=["POST"], response_model=models.TrainResponse)
@@ -77,26 +75,20 @@ class Api:
                            methods=["GET"], response_model=models.TrainLogResponse)
         self.add_api_route("/loraapi/v1/training/{id}", self.check_train,
                            methods=["POST"], response_model=models.TrainInfoResponse)
-        self.add_api_route("/loraapi/v1/training/{id}", self.terminate_train,
-                           methods=["PUT"], response_model=models.TrainInfoResponse)
         self.add_api_route("/loraapi/v1/training/{id}", self.delete_training,
                            methods=["DELETE"], response_model=models.TrainInfoResponse)
 
     def add_api_route(self, path: str, endpoint, **kwargs):
         return self.app.add_api_route(path, endpoint, **kwargs)
 
-    async def check_train(self, id: str):
-        future = self.futures.get(id)
-        if not future:
-            raise HTTPException(
-                status_code=404, detail="Training process not found")
+    def check_train(self, id: str):
+        base_dir = os.path.abspath(os.curdir)
+        train_dir = os.path.join(base_dir, 'train_data', id)
 
-        if future.running():
-            return models.TrainInfoResponse(title="Start LoRA training", description="Already running", info="Running")
-        elif future.done():
-            return models.TrainInfoResponse(title="Start LoRA training", description="Training already completed", info="Done")
+        if os.path.exists(train_dir):
+            return models.TrainInfoResponse(title="Start LoRA training", description="Train ID exists", info="Success")
         else:
-            return models.TrainInfoResponse(title="Start LoRA training", description="Task is pending, will start shortly", info="Pending")
+            return models.TrainInfoResponse(title="Start LoRA training", description="Can't find specific train id", info="Failed")
 
     def fetch_train_log(self, id: str):
         base_dir = os.path.abspath(os.curdir)
@@ -251,7 +243,9 @@ class Api:
         # Move the file
         shutil.move(original_file_path, dest_file_path)
 
-    async def create_train(self, request: Request, background_tasks: BackgroundTasks):
+        print("Train finished!")
+
+    async def create_train(self, request: Request):
         base_dir = os.path.abspath(os.curdir)
 
         # Generate a unique ID for this training process
@@ -285,36 +279,13 @@ class Api:
         instance_prompt = "ohwx"
         class_prompt = "man"
 
-        future = self.executor.submit(self.train_model_bg, save_dir, train_data_dir,
-                                      reg_data_dir, model_path, instance_prompt, class_prompt, max_resolution)
-        self.futures[train_id] = future
+        self.train_model_bg(save_dir=save_dir, train_data_dir=train_data_dir, reg_data_dir=reg_data_dir, model_path=model_path,
+                            instance_prompt=instance_prompt, class_prompt=class_prompt, max_resolution=max_resolution)
 
         return models.TrainResponse(title="LoRA training", description="Completed", info="Success", train_id=train_id)
 
-    def terminate_train(self, id: str):
-        future = self.futures.get(id)
-        if not future:
-            raise HTTPException(
-                status_code=404, detail="Training process not found")
-
-        # Try to cancel the future
-        if future.cancel():
-            return models.TrainInfoResponse(title="Terminate LoRA training", description="Terminated", info="Success")
-        else:
-            raise HTTPException(
-                status_code=500, detail="Failed to terminate training process")
-
-    async def delete_training(self, id: str):
+    def delete_training(self, id: str):
         base_dir = os.path.abspath(os.curdir)
-
-        if id not in self.futures:
-            raise HTTPException(
-                status_code=404, detail="Training task not found")
-        if not self.futures[id].cancelled():
-            self.futures[id].cancel()
-
-        # Remove task from executor
-        del self.futures[id]
 
         # Remove training data directory
         train_data_dir = os.path.join(base_dir, "train_data", id)
