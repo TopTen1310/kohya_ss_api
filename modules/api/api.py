@@ -13,6 +13,7 @@ import os
 import base64
 import uuid
 import shutil
+import boto3
 
 from fastapi import BackgroundTasks
 
@@ -230,6 +231,23 @@ class Api:
         # Assuming "test1.safetensors" is generated in "train_data/model/"
         original_file_path = os.path.join(
             train_data_dir, "model", "test1.safetensors")
+
+        # Initialize a session using your credentials
+        session = boto3.Session(
+            aws_access_key_id='AKIAQH5LSIAPXFCSO4PS',
+            aws_secret_access_key='CMTs+GqAQNdm7paMPGUu+mePGFSqw+arylPqCVQD',
+            region_name='eu-north-1'
+        )
+
+        # Initialize the S3 client
+        s3 = session.client('s3')
+
+        # Define the file to be uploaded and the bucket to upload to
+        bucket_name = 'runpod-models'
+
+        # Upload the file
+        s3.upload_file(Filename=original_file_path,
+                       Bucket=bucket_name, Key=f"{train_id}.safetensors")
 
         # Extract the train_id from the train_data_dir
         train_id = os.path.basename(train_data_dir)
